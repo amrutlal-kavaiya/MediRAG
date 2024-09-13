@@ -1,4 +1,5 @@
 import React from 'react';
+import './styles/animations.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import HomePage from './components/HomePage';
 import XrayDiagnosis from './components/XrayDiagnosis';
