@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Upload, FileText, AlertCircle } from 'lucide-react';
+import { Upload, FileText, AlertCircle, Loader } from 'lucide-react';
 
 interface DiagnosisResult {
   primaryDiagnosis: string;
   confidenceLevel: number;
   additionalFindings: string[];
   recommendedActions: string;
+  aiAnalysis: string;
 }
 
 const Alert: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -41,7 +42,7 @@ const XrayDiagnosisPage: React.FC = () => {
     if (file) formData.append('file', file);
 
     try {
-      const response = await fetch('/api/xray-diagnosis', {
+      const response = await fetch('http://localhost:3001/api/xray-diagnosis', {
         method: 'POST',
         body: formData,
       });
@@ -60,17 +61,17 @@ const XrayDiagnosisPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-red-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-red-800 mb-8 text-center">X-ray and Document Diagnosis</h1>
+        <h1 className="text-4xl font-bold text-blue-800 mb-8 text-center">Professional X-ray and Document Analysis</h1>
         
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-semibold text-red-700 mb-4">Upload Files for Analysis</h2>
+          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Upload Files for Expert Analysis</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className="flex flex-col items-center justify-center border-2 border-dashed border-red-300 rounded-lg p-6 hover:border-red-500 transition duration-300">
-              <Upload className="w-12 h-12 text-red-500 mb-2" />
-              <p className="text-red-700 font-semibold mb-2">Upload X-ray Image</p>
+            <div className="flex flex-col items-center justify-center border-2 border-dashed border-blue-300 rounded-lg p-6 hover:border-blue-500 transition duration-300">
+              <Upload className="w-12 h-12 text-blue-500 mb-2" />
+              <p className="text-blue-700 font-semibold mb-2">Upload X-ray Image</p>
               <input
                 type="file"
                 accept="image/*"
@@ -80,16 +81,16 @@ const XrayDiagnosisPage: React.FC = () => {
               />
               <label
                 htmlFor="image-upload"
-                className="bg-red-500 text-white py-2 px-4 rounded-full hover:bg-red-600 transition duration-300 cursor-pointer"
+                className="bg-blue-500 text-white py-2 px-4 rounded-full hover:bg-blue-600 transition duration-300 cursor-pointer"
               >
                 Select Image
               </label>
               {image && <p className="mt-2 text-sm text-gray-600">{image.name}</p>}
             </div>
             
-            <div className="flex flex-col items-center justify-center border-2 border-dashed border-red-300 rounded-lg p-6 hover:border-red-500 transition duration-300">
-              <FileText className="w-12 h-12 text-red-500 mb-2" />
-              <p className="text-red-700 font-semibold mb-2">Upload Medical Document</p>
+            <div className="flex flex-col items-center justify-center border-2 border-dashed border-blue-300 rounded-lg p-6 hover:border-blue-500 transition duration-300">
+              <FileText className="w-12 h-12 text-blue-500 mb-2" />
+              <p className="text-blue-700 font-semibold mb-2">Upload Medical Document</p>
               <input
                 type="file"
                 accept=".pdf,.doc,.docx"
@@ -99,7 +100,7 @@ const XrayDiagnosisPage: React.FC = () => {
               />
               <label
                 htmlFor="file-upload"
-                className="bg-red-500 text-white py-2 px-4 rounded-full hover:bg-red-600 transition duration-300 cursor-pointer"
+                className="bg-blue-500 text-white py-2 px-4 rounded-full hover:bg-blue-600 transition duration-300 cursor-pointer"
               >
                 Select File
               </label>
@@ -113,10 +114,15 @@ const XrayDiagnosisPage: React.FC = () => {
             className={`w-full py-3 rounded-full text-white font-semibold ${
               (!image && !file) || loading
                 ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600'
+                : 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600'
             } transition duration-300`}
           >
-            {loading ? 'Processing...' : 'Analyze Files'}
+            {loading ? (
+              <span className="flex items-center justify-center">
+                <Loader className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
+                Processing...
+              </span>
+            ) : 'Analyze Files'}
           </button>
         </div>
 
@@ -129,18 +135,21 @@ const XrayDiagnosisPage: React.FC = () => {
 
         {result && (
           <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-semibold text-red-700 mb-4">Diagnosis Results</h2>
+            <h2 className="text-2xl font-semibold text-blue-700 mb-4">Expert Analysis Results</h2>
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-medium text-red-600">Primary Diagnosis:</h3>
+                <h3 className="text-lg font-medium text-blue-600">Primary Diagnosis:</h3>
                 <p className="text-gray-800">{result.primaryDiagnosis}</p>
               </div>
               <div>
-                <h3 className="text-lg font-medium text-red-600">Confidence Level:</h3>
-                <p className="text-gray-800">{result.confidenceLevel}%</p>
+                <h3 className="text-lg font-medium text-blue-600">Confidence Level:</h3>
+                <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4 dark:bg-gray-700">
+                  <div className="bg-blue-600 h-2.5 rounded-full" style={{width: `${result.confidenceLevel}%`}}></div>
+                </div>
+                <p className="text-gray-800">{result.confidenceLevel}% confidence</p>
               </div>
               <div>
-                <h3 className="text-lg font-medium text-red-600">Additional Findings:</h3>
+                <h3 className="text-lg font-medium text-blue-600">Additional Findings:</h3>
                 <ul className="list-disc list-inside text-gray-800">
                   {result.additionalFindings.map((finding, index) => (
                     <li key={index}>{finding}</li>
@@ -148,8 +157,14 @@ const XrayDiagnosisPage: React.FC = () => {
                 </ul>
               </div>
               <div>
-                <h3 className="text-lg font-medium text-red-600">Recommended Actions:</h3>
+                <h3 className="text-lg font-medium text-blue-600">Recommended Actions:</h3>
                 <p className="text-gray-800">{result.recommendedActions}</p>
+              </div>
+              <div>
+                <h3 className="text-lg font-medium text-blue-600">Detailed AI Analysis:</h3>
+                <pre className="bg-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
+                  {result.aiAnalysis}
+                </pre>
               </div>
             </div>
           </div>
