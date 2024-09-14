@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Mic, Send, Paperclip, Image, Video, X, User, Bot, Minus, Plus } from 'lucide-react';
+import { Mic, Send, Paperclip, Video, X, User, Bot, Minus, Plus } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -107,7 +107,7 @@ const MentalHealthSupport: React.FC = () => {
   const sendMessageToBackend = async (message: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/mental-health-chat', {
+      const response = await fetch('https://scaling-giggle-5gxq7xjwpjr7c79q9-3001.app.github.dev/api/mental-health-chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

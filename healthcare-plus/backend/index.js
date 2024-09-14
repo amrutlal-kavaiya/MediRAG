@@ -13,7 +13,9 @@ const endpoint = "https://models.inference.ai.azure.com";
 const modelName = "gpt-4o";
 app.use(cors());
 app.use(express.json());
-
+let conversationHistory = [
+  { role: "system", content: "You are a helpful mental health assistant. Provide empathetic and supportive responses to users seeking mental health support." }
+];
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads/')
@@ -22,7 +24,7 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + path.extname(file.originalname))
   }
 });
-
+const client = new OpenAI({ baseURL: endpoint, apiKey: token });
 const upload = multer({ storage: storage });
 
 const openai = new OpenAI({
@@ -197,7 +199,37 @@ app.post('/api/HealthPlans', async (req, res) => {
   }
 });
 
+app.post('/api/mental-health-chat', async (req, res) => {
+  try {
+    const userMessage = req.body.message;
+    
+    // Add user message to conversation history
+    conversationHistory.push({ role: "user", content: userMessage });
 
+    const response = await client.chat.completions.create({
+      messages: conversationHistory,
+      model: modelName
+    });
+
+    const assistantReply = response.choices[0].message.content;
+
+    // Add assistant's reply to conversation history
+    conversationHistory.push({ role: "assistant", content: assistantReply });
+
+    // Keep only the last 10 messages to manage conversation length
+    if (conversationHistory.length > 11) {
+      conversationHistory = [
+        conversationHistory[0],
+        ...conversationHistory.slice(-10)
+      ];
+    }
+
+    res.json({ response: assistantReply });
+  } catch (error) {
+    console.error('Error in chat API:', error);
+    res.status(500).json({ error: 'An error occurred while processing your request.' });
+  }
+});
 
 // app.post('/api/HealthPlans', async (req, res) => {
 //   try {
