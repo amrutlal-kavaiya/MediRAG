@@ -1,57 +1,69 @@
 import React, { useState } from 'react';
 import { Utensils, Moon, AlertCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface HealthPlanData {
-  dietPlan: string[];
-  sleepRoutine: string[];
+  diet_plan: {
+    caloric_intake: number;
+    macronutrients: {
+      carbohydrates: string;
+      proteins: string;
+      fats: string;
+    };
+    meal_plan: {
+      [key: string]: {
+        time: string;
+        items: string[];
+      };
+    };
+  };
+  sleep_routine: {
+    bedtime: string;
+    wake_time: string;
+    pre_sleep_activities: string[];
+  };
 }
-
-interface Question {
-  id: string;
-  text: string;
-  type: 'text' | 'number' | 'select';
-  options?: string[];
-}
-
-const questions: Question[] = [
-  { id: 'age', text: 'What is your age?', type: 'number' },
-  { id: 'weight', text: 'What is your weight in kg?', type: 'number' },
-  { id: 'height', text: 'What is your height in cm?', type: 'number' },
-  { id: 'activityLevel', text: 'What is your activity level?', type: 'select', options: ['Sedentary', 'Lightly Active', 'Moderately Active', 'Very Active', 'Extra Active'] },
-  { id: 'dietaryRestrictions', text: 'Do you have any dietary restrictions?', type: 'text' },
-  { id: 'sleepIssues', text: 'Do you have any sleep-related issues?', type: 'text' },
-];
 
 const HealthPlans: React.FC = () => {
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [formData, setFormData] = useState({
+    age: '',
+    weight: '',
+    height: '',
+    activityLevel: '',
+    dietaryRestrictions: '',
+    sleepIssues: ''
+  });
   const [healthPlan, setHealthPlan] = useState<HealthPlanData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const handleInputChange = (id: string, value: string) => {
-    setAnswers((prev: Record<string, string>) => ({ ...prev, [id]: value }));
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prevData => ({ ...prevData, [name]: value }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
     setError(null);
     setHealthPlan(null);
 
     try {
-      const response = await fetch('/api/HealthPlans', {
+      const response = await fetch('https://scaling-giggle-5gxq7xjwpjr7c79q9-3001.app.github.dev/api/HealthPlans', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(answers),
+        body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
         throw new Error('Server error');
       }
 
-      const data: HealthPlanData = await response.json();
-      setHealthPlan(data);
+      const data = await response.json();
+      console.log('Received data:', data);
+      setHealthPlan(data.healthPlan);
     } catch (err) {
       setError('An error occurred while processing your request. Please try again.');
     } finally {
@@ -60,55 +72,113 @@ const HealthPlans: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-green-800 mb-8 text-center">Personalized Health Plans</h1>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      {/* Header and other components ... */}
+
+      <main className="container mx-auto px-4 py-8">
+        <h1 className="text-4xl font-bold text-blue-800 mb-8 text-center">Personalized Health Plans</h1>
         
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-semibold text-green-700 mb-4">Health Questionnaire</h2>
+          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Health Questionnaire</h2>
           
-          {questions.map((q) => (
-            <div key={q.id} className="mb-4">
-              <label htmlFor={q.id} className="block text-sm font-medium text-gray-700">
-                {q.text}
-              </label>
-              {q.type === 'select' ? (
-                <select
-                  id={q.id}
-                  value={answers[q.id] || ''}
-                  onChange={(e) => handleInputChange(q.id, e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                >
-                  <option value="">Select an option</option>
-                  {q.options?.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  type={q.type}
-                  id={q.id}
-                  value={answers[q.id] || ''}
-                  onChange={(e) => handleInputChange(q.id, e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                />
-              )}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="age" className="block text-sm font-medium text-gray-700">Age</label>
+              <input
+                type="number"
+                id="age"
+                name="age"
+                value={formData.age}
+                onChange={handleInputChange}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                required
+                min="1"
+                max="120"
+              />
             </div>
-          ))}
-          
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            className={`w-full py-3 rounded-full text-white font-semibold ${
-              loading
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600'
-            } transition duration-300 mt-6`}
-          >
-            {loading ? 'Processing...' : 'Generate Health Plan'}
-          </button>
+            <div>
+              <label htmlFor="weight" className="block text-sm font-medium text-gray-700">Weight (kg)</label>
+              <input
+                type="number"
+                id="weight"
+                name="weight"
+                value={formData.weight}
+                onChange={handleInputChange}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                required
+                min="1"
+                max="500"
+                step="0.1"
+              />
+            </div>
+            <div>
+              <label htmlFor="height" className="block text-sm font-medium text-gray-700">Height (cm)</label>
+              <input
+                type="number"
+                id="height"
+                name="height"
+                value={formData.height}
+                onChange={handleInputChange}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                required
+                min="1"
+                max="300"
+              />
+            </div>
+            <div>
+              <label htmlFor="activityLevel" className="block text-sm font-medium text-gray-700">Activity Level</label>
+              <select
+                id="activityLevel"
+                name="activityLevel"
+                value={formData.activityLevel}
+                onChange={handleInputChange}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                required
+              >
+                <option value="">Select an option</option>
+                <option value="sedentary">Sedentary</option>
+                <option value="lightly active">Lightly Active</option>
+                <option value="moderately active">Moderately Active</option>
+                <option value="very active">Very Active</option>
+                <option value="extra active">Extra Active</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="dietaryRestrictions" className="block text-sm font-medium text-gray-700">Dietary Restrictions</label>
+              <input
+                type="text"
+                id="dietaryRestrictions"
+                name="dietaryRestrictions"
+                value={formData.dietaryRestrictions}
+                onChange={handleInputChange}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                placeholder="e.g., vegetarian, gluten-free, nut allergy"
+              />
+            </div>
+            <div>
+              <label htmlFor="sleepIssues" className="block text-sm font-medium text-gray-700">Sleep Issues</label>
+              <textarea
+                id="sleepIssues"
+                name="sleepIssues"
+                value={formData.sleepIssues}
+                onChange={handleInputChange}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                rows={3}
+                placeholder="Describe any sleep issues you're experiencing"
+              ></textarea>
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full py-3 rounded-full text-white font-semibold ${
+                loading
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600'
+              } transition duration-300`}
+            >
+              {loading ? 'Generating...' : 'Generate Health Plan'}
+            </button>
+          </form>
         </div>
 
         {error && (
@@ -120,32 +190,54 @@ const HealthPlans: React.FC = () => {
 
         {healthPlan && (
           <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-semibold text-green-700 mb-4">Your Personalized Health Plan</h2>
+            <h2 className="text-2xl font-semibold text-blue-700 mb-4">Your Personalized Health Plan</h2>
             
-            <div className="mb-6">
-              <h3 className="text-xl font-semibold text-green-600 mb-3 flex items-center">
-                <Utensils className="mr-2" /> Recommended Diet Plan
-              </h3>
-              <ul className="list-disc list-inside text-gray-700 space-y-2">
-                {healthPlan.dietPlan.map((item: string, index: number) => (
-                  <li key={index}>{item}</li>
+            {healthPlan.diet_plan && healthPlan.diet_plan.macronutrients && (
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold text-blue-600 mb-3 flex items-center">
+                  <Utensils className="mr-2" /> Diet Plan
+                </h3>
+                <p>Caloric Intake: {healthPlan.diet_plan.caloric_intake} calories</p>
+                <h4 className="text-lg font-semibold mt-2">Macronutrients:</h4>
+                <ul className="list-disc list-inside text-gray-700">
+                  <li>Carbohydrates: {healthPlan.diet_plan.macronutrients.carbohydrates}</li>
+                  <li>Proteins: {healthPlan.diet_plan.macronutrients.proteins}</li>
+                  <li>Fats: {healthPlan.diet_plan.macronutrients.fats}</li>
+                </ul>
+                <h4 className="text-lg font-semibold mt-2">Meal Plan:</h4>
+                {Object.entries(healthPlan.diet_plan.meal_plan).map(([meal, details]) => (
+                  <div key={meal} className="mt-2">
+                    <h5 className="font-semibold capitalize">{meal} ({details.time}):</h5>
+                    <ul className="list-disc list-inside text-gray-700">
+                      {details.items.map((item, index) => (
+                        <li key={index}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
                 ))}
-              </ul>
-            </div>
+              </div>
+            )}
             
-            <div>
-              <h3 className="text-xl font-semibold text-green-600 mb-3 flex items-center">
-                <Moon className="mr-2" /> Recommended Sleep Routine
-              </h3>
-              <ul className="list-disc list-inside text-gray-700 space-y-2">
-                {healthPlan.sleepRoutine.map((item: string, index: number) => (
-                  <li key={index}>{item}</li>
-                ))}
-              </ul>
-            </div>
+            {healthPlan.sleep_routine && (
+              <div>
+                <h3 className="text-xl font-semibold text-blue-600 mb-3 flex items-center">
+                  <Moon className="mr-2" /> Sleep Routine
+                </h3>
+                <p>Bedtime: {healthPlan.sleep_routine.bedtime}</p>
+                <p>Wake Time: {healthPlan.sleep_routine.wake_time}</p>
+                <h4 className="text-lg font-semibold mt-2">Pre-sleep Activities:</h4>
+                <ul className="list-disc list-inside text-gray-700">
+                  {healthPlan.sleep_routine.pre_sleep_activities.map((activity, index) => (
+                    <li key={index}>{activity}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
-      </div>
+      </main>
+
+      {/* Footer ... */}
     </div>
   );
 };

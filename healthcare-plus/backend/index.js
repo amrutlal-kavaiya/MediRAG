@@ -132,15 +132,15 @@ app.post('/api/xray-diagnosis', upload.fields([
   }
 });
 
-app.get('/api/HealthPlans', async (req, res) => {
+app.post('/api/HealthPlans', async (req, res) => {
   try {
-    // Extracting parameters from query
+    // Extracting parameters from request body
     const client = new OpenAI({ baseURL: endpoint, apiKey: token });
-    const { age, weight, height, activityLevel, dietaryRestrictions, sleepIssues } = req.query;
+    const { age, weight, height, activityLevel, dietaryRestrictions, sleepIssues } = req.body;
 
-    console.log("Received query parameters:", { age, weight, height, activityLevel, dietaryRestrictions, sleepIssues });
+    console.log("Received body parameters:", { age, weight, height, activityLevel, dietaryRestrictions, sleepIssues });
 
-    // Sample data in case query parameters are missing
+    // Sample data in case body parameters are missing
     const sampleData = {
       age: age || 30,
       weight: weight || 70,
@@ -162,7 +162,7 @@ app.get('/api/HealthPlans', async (req, res) => {
         { role: "user", content: prompt }
       ],
       model: modelName,
-      temperature: 1.0,
+      temperature: 0.3,
       max_tokens: 1000,
       top_p: 1.0
     });
