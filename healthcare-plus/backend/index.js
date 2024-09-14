@@ -82,7 +82,7 @@ app.get('/api/test', async (req, res) => {
         { role: "user", content: "What is the capital of France?" }
       ],
       model: modelName,
-      temperature: 1.0,
+      temperature: 0.3,
       max_tokens: 1000,
       top_p: 1.0
     });
