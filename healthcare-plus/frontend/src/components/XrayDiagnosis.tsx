@@ -15,21 +15,15 @@ const Alert: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   </div>
 );
 
-const XrayDiagnosisPage: React.FC = () => {
-  const [image, setImage] = useState<File | null>(null);
+const ImageAnalysisPage: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<DiagnosisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) setImage(file);
-  };
-
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) setFile(file);
+    const uploadedFile = event.target.files?.[0];
+    if (uploadedFile) setFile(uploadedFile);
   };
 
   const handleSubmit = async () => {
@@ -38,11 +32,10 @@ const XrayDiagnosisPage: React.FC = () => {
     setResult(null);
 
     const formData = new FormData();
-    if (image) formData.append('image', image);
     if (file) formData.append('file', file);
 
     try {
-      const response = await fetch('http://localhost:3001/api/xray-diagnosis', {
+      const response = await fetch('https://scaling-giggle-5gxq7xjwpjr7c79q9-3001.app.github.dev/api/analyze-image', {
         method: 'POST',
         body: formData,
       });
@@ -63,56 +56,35 @@ const XrayDiagnosisPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-blue-800 mb-8 text-center">Professional X-ray and Document Analysis</h1>
+        <h1 className="text-4xl font-bold text-blue-800 mb-8 text-center">Image and PDF Analysis</h1>
         
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Upload Files for Expert Analysis</h2>
+          <h2 className="text-2xl font-semibold text-blue-700 mb-4">Upload an Image or PDF for Analysis</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className="flex flex-col items-center justify-center border-2 border-dashed border-blue-300 rounded-lg p-6 hover:border-blue-500 transition duration-300">
-              <Upload className="w-12 h-12 text-blue-500 mb-2" />
-              <p className="text-blue-700 font-semibold mb-2">Upload X-ray Image</p>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-                id="image-upload"
-              />
-              <label
-                htmlFor="image-upload"
-                className="bg-blue-500 text-white py-2 px-4 rounded-full hover:bg-blue-600 transition duration-300 cursor-pointer"
-              >
-                Select Image
-              </label>
-              {image && <p className="mt-2 text-sm text-gray-600">{image.name}</p>}
-            </div>
-            
-            <div className="flex flex-col items-center justify-center border-2 border-dashed border-blue-300 rounded-lg p-6 hover:border-blue-500 transition duration-300">
-              <FileText className="w-12 h-12 text-blue-500 mb-2" />
-              <p className="text-blue-700 font-semibold mb-2">Upload Medical Document</p>
-              <input
-                type="file"
-                accept=".pdf,.doc,.docx"
-                onChange={handleFileUpload}
-                className="hidden"
-                id="file-upload"
-              />
-              <label
-                htmlFor="file-upload"
-                className="bg-blue-500 text-white py-2 px-4 rounded-full hover:bg-blue-600 transition duration-300 cursor-pointer"
-              >
-                Select File
-              </label>
-              {file && <p className="mt-2 text-sm text-gray-600">{file.name}</p>}
-            </div>
+          <div className="flex flex-col items-center justify-center border-2 border-dashed border-blue-300 rounded-lg p-6 hover:border-blue-500 transition duration-300 mb-6">
+            <Upload className="w-12 h-12 text-blue-500 mb-2" />
+            <p className="text-blue-700 font-semibold mb-2">Upload Image or PDF</p>
+            <input
+              type="file"
+              accept="image/*,.pdf"
+              onChange={handleFileUpload}
+              className="hidden"
+              id="file-upload"
+            />
+            <label
+              htmlFor="file-upload"
+              className="bg-blue-500 text-white py-2 px-4 rounded-full hover:bg-blue-600 transition duration-300 cursor-pointer"
+            >
+              Select File
+            </label>
+            {file && <p className="mt-2 text-sm text-gray-600">{file.name}</p>}
           </div>
           
           <button
             onClick={handleSubmit}
-            disabled={(!image && !file) || loading}
+            disabled={!file || loading}
             className={`w-full py-3 rounded-full text-white font-semibold ${
-              (!image && !file) || loading
+              !file || loading
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600'
             } transition duration-300`}
@@ -120,9 +92,9 @@ const XrayDiagnosisPage: React.FC = () => {
             {loading ? (
               <span className="flex items-center justify-center">
                 <Loader className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
-                Processing...
+                Analyzing...
               </span>
-            ) : 'Analyze Files'}
+            ) : 'Analyze File'}
           </button>
         </div>
 
@@ -135,7 +107,7 @@ const XrayDiagnosisPage: React.FC = () => {
 
         {result && (
           <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-semibold text-blue-700 mb-4">Expert Analysis Results</h2>
+            <h2 className="text-2xl font-semibold text-blue-700 mb-4">Analysis Results</h2>
             <div className="space-y-4">
               <div>
                 <h3 className="text-lg font-medium text-blue-600">Primary Diagnosis:</h3>
@@ -174,4 +146,4 @@ const XrayDiagnosisPage: React.FC = () => {
   );
 };
 
-export default XrayDiagnosisPage;
+export default ImageAnalysisPage;

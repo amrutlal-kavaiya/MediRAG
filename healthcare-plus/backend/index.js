@@ -11,26 +11,24 @@ const port = process.env.PORT || 3001;
 const token = process.env["GITHUB_TOKEN"];
 const endpoint = "https://models.inference.ai.azure.com";
 const modelName = "gpt-4o";
+
 app.use(cors());
 app.use(express.json());
 let conversationHistory = [
   { role: "system", content: "You are a helpful mental health assistant. Provide empathetic and supportive responses to users seeking mental health support." }
 ];
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/')
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
   },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname))
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
   }
 });
-const client = new OpenAI({ baseURL: endpoint, apiKey: token });
+
 const upload = multer({ storage: storage });
 
-const openai = new OpenAI({
-  baseURL: process.env.OPENAI_API_ENDPOINT,
-  apiKey: process.env["GITHUB_TOKEN"]
-});
+const client = new OpenAI({ baseURL: endpoint, apiKey: token });
 
 async function convertPdfToImage(pdfPath) {
   const outputImages = await pdf2img.convert(pdfPath);
@@ -47,18 +45,19 @@ function getImageDataUrl(imagePath) {
 }
 
 async function analyzeImageWithAI(imagePath) {
-  const response = await openai.chat.completions.create({
+  const imageDataUrl = getImageDataUrl(imagePath);
+  const response = await client.chat.completions.create({
     messages: [
       { role: "system", content: "You are an expert radiologist analyzing X-ray images. Provide a detailed diagnosis, confidence level, additional findings, and recommended actions." },
       { role: "user", content: [
         { type: "text", text: "Analyze this X-ray image and provide a detailed diagnosis."},
         { type: "image_url", image_url: {
-          url: getImageDataUrl(imagePath),
+          url: imageDataUrl,
           details: "high"
         }}
       ]}
     ],
-    model: process.env.OPENAI_MODEL_NAME || "gpt-4-vision-preview"
+    model: modelName
   });
   
   return response.choices[0].message.content;
@@ -73,7 +72,6 @@ function parseAIResponse(aiResponse) {
     recommendedActions: lines.find(line => line.toLowerCase().includes('recommended actions'))?.split(':')[1]?.trim() || 'Consult with a specialist for further evaluation.'
   };
 }
-
 app.get('/api/test', async (req, res) => {
   try {
     const client = new OpenAI({ baseURL: endpoint, apiKey: token });
@@ -98,39 +96,6 @@ app.get('/api/test', async (req, res) => {
   } catch (error) {
     console.error('Error in test route:', error);
     res.status(500).json({ error: 'An error occurred while processing the request' });
-  }
-});
-
-app.post('/api/xray-diagnosis', upload.fields([
-  { name: 'image', maxCount: 1 },
-  { name: 'file', maxCount: 1 }
-]), async (req, res) => {
-  try {
-    let imagePath = req.files['image'] ? req.files['image'][0].path : null;
-    const filePath = req.files['file'] ? req.files['file'][0].path : null;
-    
-    if (!imagePath && !filePath) {
-      return res.status(400).json({ error: 'No files uploaded' });
-    }
-    
-    if (filePath && path.extname(filePath).toLowerCase() === '.pdf') {
-      imagePath = await convertPdfToImage(filePath);
-    }
-    
-    if (!imagePath) {
-      return res.status(400).json({ error: 'No valid image or PDF file provided' });
-    }
-    
-    const aiAnalysis = await analyzeImageWithAI(imagePath);
-    const diagnosisResult = parseAIResponse(aiAnalysis);
-    
-    res.json({
-      ...diagnosisResult,
-      aiAnalysis // Include the full AI analysis for detailed display
-    });
-  } catch (error) {
-    console.error('Error performing diagnosis:', error);
-    res.status(500).json({ error: 'An error occurred while processing the diagnosis' });
   }
 });
 
@@ -230,50 +195,38 @@ app.post('/api/mental-health-chat', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while processing your request.' });
   }
 });
+app.post('/api/analyze-image', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
 
-// app.post('/api/HealthPlans', async (req, res) => {
-//   try {
-//     const { age, weight, height, activityLevel, dietaryRestrictions, sleepIssues } = req.body;
-//     const client = new OpenAI({ baseURL: endpoint, apiKey: token });
+    let imagePath = req.file.path;
+    const fileExtension = path.extname(req.file.originalname).toLowerCase();
 
-//     const prompt = `Generate a personalized health plan for a ${age}-year-old individual weighing ${weight} kg and ${height} cm tall. Their activity level is ${activityLevel}, and they have the following dietary restrictions: ${dietaryRestrictions}. They also report the following sleep issues: ${sleepIssues}. Provide a diet plan and sleep routine in the following JSON format:
-//     {
-//       "dietPlan": [
-//         "Breakfast: ...",
-//         "Lunch: ...",
-//         "Dinner: ...",
-//         "Snacks: ..."
-//       ],
-//       "sleepRoutine": [
-//         "Bedtime routine: ...",
-//         "Recommended sleep duration: ...",
-//         "Sleep environment tips: ...",
-//         "Morning routine: ..."
-//       ]
-//     }`;
+    if (fileExtension === '.pdf') {
+      imagePath = await convertPdfToImage(imagePath);
+      // Delete the original PDF file
+      fs.unlinkSync(req.file.path);
+    } else if (!['.png', '.jpg', '.jpeg'].includes(fileExtension)) {
+      return res.status(400).json({ error: 'Unsupported file format. Please upload a PDF or image file.' });
+    }
 
-//     const response = await client.chat.completions.create({
-//       messages: [
-//         { role: "system", content: "You are a helpful assistant specialized in creating personalized health plans." },
-//         { role: "user", content: prompt }
-//       ],
-//       model: modelName,
-//       temperature: 1.0,
-//       max_tokens: 1000,
-//       top_p: 1.0
-//     });
+    const aiAnalysis = await analyzeImageWithAI(imagePath);
+    const diagnosisResult = parseAIResponse(aiAnalysis);
 
-//     const healthPlan = JSON.parse(response.choices[0].message.content);
-    
-//     res.json({
-//       message: 'Health plan generated successfully!',
-//       healthPlan: healthPlan
-//     });
-//   } catch (error) {
-//     console.error('Error generating health plan:', error);
-//     res.status(500).json({ error: 'An error occurred while generating the health plan' });
-//   }
-// });
+    // Clean up the uploaded file
+    fs.unlinkSync(imagePath);
+
+    res.json({
+      ...diagnosisResult,
+      aiAnalysis // Include the full AI analysis for detailed display
+    });
+  } catch (error) {
+    console.error('Error analyzing image:', error);
+    res.status(500).json({ error: 'An error occurred while analyzing the image' });
+  }
+});
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
