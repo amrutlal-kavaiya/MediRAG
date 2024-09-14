@@ -20,12 +20,12 @@ interface Particle {
 }
 
 const alphabets = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' +
-                  'αβγδεζηθικλμνξοπρστυφχψω' +
-                  'ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ' +
-                  'абвгдеёжзийклмнопрстуфхцчшщъыьэюя' +
+                  'અઆઇઈઉઊઋએઐઓઔકખગઘઙચછજઝઞટઠડઢણતથદધનપફબભમયરલવશષસહળક્ષજ્ઞ' +
+                  'अआइईउऊऋएऐओऔअंअःकखगघङचछजझञटठडढणतथदधनपफबभमयरलवशषसहक्षत्रज्ञ' +
+                  'ਅਆਇਈਉਊਏਐਓਔਕਖਗਘਙਚਛਜਝਞਟਠਡਢਣਤਥਦਧਨਪਫਬਭਮਯਰਲਵਸ਼ਸਹਖ਼ਗ਼ਜ਼ਫ਼' +
                   'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ' +
-                  '你好世界' +
-                  'こんにちは世界' +
+                  'అఆఇఈఉఊఋఎఏఐఒఓఔఅంఅఃకఖగఘఙచఛజఝఞటఠడఢణతథదధనపఫబభమయరలవశషసహళక్షజ్ఞ' +
+                  'ಅಆಇಈಉಊಋಎಏಐಒಓಔಅಂಅಃಕಖಗಘಙಚಛಜಝಞಟಠಡಢಣತಥದಧನಪಫಬಭಮಯರಲವಶಷಸಹಳಕ್ಷಜ್ಞ' +
                   '안녕하세요 세계';
 
 const MentalHealthSupport: React.FC = () => {
@@ -56,7 +56,7 @@ const MentalHealthSupport: React.FC = () => {
     canvas.height = window.innerHeight;
 
     const particles: Particle[] = [];
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 180; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
