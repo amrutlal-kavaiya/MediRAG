@@ -35,7 +35,7 @@ const ImageAnalysisPage: React.FC = () => {
     if (file) formData.append('file', file);
 
     try {
-      const response = await fetch('https://scaling-giggle-5gxq7xjwpjr7c79q9-3001.app.github.dev/api/analyze-image', {
+      const response = await fetch('https://bookish-computing-machine-7vp9jp6g4q94hpgg9-3001.app.github.dev/api/analyze-image', {
         method: 'POST',
         body: formData,
       });

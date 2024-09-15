@@ -49,7 +49,7 @@ const HealthPlans: React.FC = () => {
     setHealthPlan(null);
 
     try {
-      const response = await fetch('https://scaling-giggle-5gxq7xjwpjr7c79q9-3001.app.github.dev/api/HealthPlans', {
+      const response = await fetch('https://bookish-computing-machine-7vp9jp6g4q94hpgg9-3001.app.github.dev/api/HealthPlans', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

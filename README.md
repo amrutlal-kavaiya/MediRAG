@@ -1,99 +1,100 @@
-# Healthcare Application with X-ray Diagnosis
+# Healthcare Website
 
-This project is a full-stack application that provides personalized health plans and X-ray diagnosis capabilities. It consists of a React frontend and a Node.js backend, both containerized using Docker for easy development and deployment.
+## Overview
 
-## Prerequisites
+This project is a comprehensive healthcare website built using JavaScript, TypeScript, and Node.js. It offers a range of features designed to improve patient care, streamline medical processes, and provide easy access to health-related information and services.
+![](./Images/Home.png)
 
-Before you begin, ensure you have the following installed on your system:
-- [Docker](https://www.docker.com/get-started)
-- [Docker Compose](https://docs.docker.com/compose/install/)
+## Key Features
 
-## Project Structure
+1. **X-ray and Document Diagnosis**
+   - AI-powered analysis of medical images and documents
+   - Quick and accurate diagnoses
+   - Supports various file formats including images and PDFs
+![](./Images/X-ray.png)
+2. **Personalized Health Plans**
+   - Tailored nutrition and sleep recommendations
+   - Based on individual health profiles and goals
+   - Includes diet plans and sleep routines
+![](./Images/image.png)
+3. **Appointment Scheduling**
+   - Easy booking of medical appointments
+   - Selection of healthcare professionals
+   - Management of appointment types and reasons for visit
+![](./Images/Appointment.png)
+![](./Images/Email.png)
+4. **Mental Health Support**
+   - 24/7 access to mental health resources
+   - AI-assisted counseling
+   - Integration with professional support services
+![](./Images/Chatbot.png)
+## Technology Stack
 
-```
-.
-├── backend
-│   ├── index.js
-│   ├── package.json
-│   ├── Dockerfile
-│   └── uploads
-└── frontend
-    ├── public
-    ├── src
-    ├── package.json
-    ├── Dockerfile
-    └── tsconfig.json
-├── docker-compose.yml
-├── .env
-└── README.md
-```
+- Frontend: React.js with TypeScript
+- Backend: Node.js with Express
+- AI Integration: OpenAI API
+- Styling: Tailwind CSS
 
-## Setup
+## Setup Instructions
 
 1. Clone the repository:
    ```
-   git clone <repository-url>
-   cd <project-directory>
+   git clone https://github.com/your-username/healthcare-website.git
+   cd healthcare-website
    ```
 
-2. Create a `.env` file in the root directory with the following content:
+2. Install dependencies:
    ```
-   OPENAI_API_KEY=your_api_key_here
-   OPENAI_API_ENDPOINT=https://api.openai.com/v1
-   OPENAI_MODEL_NAME=gpt-4-vision-preview
-   ```
-   Replace `your_api_key_here` with your actual OpenAI API key.
-
-3. Ensure that the `uploads` directory exists in the `backend` folder:
-   ```
-   mkdir -p backend/uploads
+   npm install
    ```
 
-## Running the Application
+3. Set up environment variables:
+   - Create a `.env` file in the root directory
+   - Add the following variables:
+     ```
+     PORT=3001
+     OPENAI_API_KEY=your_openai_api_key
+     DATABASE_URL=your_database_connection_string
+     ```
 
-To start both the frontend and backend services, run the following command in the root directory of the project:
+4. Start the development server:
+   ```
+   npm run dev
+   ```
 
-```
-docker-compose up --build
-```
-
-This command will build the Docker images (if they haven't been built before or if there are changes) and start the containers.
-
-- The frontend will be accessible at `http://localhost:3000`
-- The backend will be accessible at `http://localhost:3001`
-
-To stop the application, press `Ctrl+C` in the terminal where docker-compose is running, or run the following command in another terminal:
-
-```
-docker-compose down
-```
-
-## Development
-
-The Docker Compose configuration uses volume mounts to enable hot-reloading for both frontend and backend during development. This means you can make changes to your code, and the applications will automatically update without needing to rebuild the Docker images.
+5. Open your browser and navigate to `http://localhost:3000`
 
 ## API Endpoints
 
-The backend provides the following API endpoints:
-
-1. `POST /api/HealthPlans`: Generates personalized health plans based on user input.
-2. `POST /api/xray-diagnosis`: Analyzes X-ray images (or PDFs containing X-ray images) and provides a diagnosis.
-
-Refer to the backend code for detailed information on the required request format and response structure for each endpoint.
-
-## Troubleshooting
-
-- If you encounter permission issues with the `uploads` directory, ensure that the directory has the correct permissions:
-  ```
-  chmod 777 backend/uploads
-  ```
-
-- If the frontend cannot connect to the backend, check that the `REACT_APP_API_URL` in the Docker Compose file is correctly set to `http://backend:3001`.
+- `/api/analyze-image`: POST request to analyze medical images
+- `/api/HealthPlans`: POST request to generate personalized health plans
+- `/api/mental-health-chat`: POST request for mental health support chat
+- (Add other endpoints as implemented)
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+We welcome contributions to improve the Healthcare Website. Please follow these steps:
+
+1. Fork the repository
+2. Create a new branch (`git checkout -b feature/AmazingFeature`)
+3. Make your changes
+4. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+5. Push to the branch (`git push origin feature/AmazingFeature`)
+6. Open a Pull Request
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+
+## Acknowledgments
+
+- OpenAI for providing the AI models
+- (Add any other libraries, tools, or resources used)
+
+## Contact
+
+Your Name - your.email@example.com
+
+Project Link: https://github.com/your-username/healthcare-website
+
+---
