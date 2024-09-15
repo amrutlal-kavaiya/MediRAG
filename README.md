@@ -5,6 +5,8 @@
 This project is a comprehensive healthcare website built using JavaScript, TypeScript, and Node.js. It offers a range of features designed to improve patient care, streamline medical processes, and provide easy access to health-related information and services.
 ![](./Images/Home.png)
 
+## Healthcare Application Architecture 
+![](./Images/MediRAG.png)
 ## Key Features
 
 1. **X-ray and Document Diagnosis**
