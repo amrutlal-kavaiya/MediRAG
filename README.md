@@ -8,6 +8,9 @@ This project is a comprehensive healthcare website built using JavaScript, TypeS
 
 ## Healthcare Application Architecture 
 ![](./Images/MediRAG.png)
+
+![Healthcare Application Architecture](https://imgr.whimsical.com/thumbnails/4J4giaGuJZkrEKcY9DLTzn/L6k2ke5FcVsEHCqcWDNyqv)
+
 ## Key Features
 
 1. **X-ray and Document Diagnosis**
