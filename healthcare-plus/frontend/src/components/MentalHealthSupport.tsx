@@ -20,7 +20,7 @@ interface Particle {
 }
 
 const alphabets = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' +
-                  'અઆઇઈઉઊઋએઐઓઔકખગઘઙચછજઝઞટઠડઢણતથદધનપફબભમયરલવશષસહળક્ષજ્ઞ' +
+                  'اابتثجحخدذرزسشصضطظعغفقكلمنهوي' +
                   'अआइईउऊऋएऐओऔअंअःकखगघङचछजझञटठडढणतथदधनपफबभमयरलवशषसहक्षत्रज्ञ' +
                   'ਅਆਇਈਉਊਏਐਓਔਕਖਗਘਙਚਛਜਝਞਟਠਡਢਣਤਥਦਧਨਪਫਬਭਮਯਰਲਵਸ਼ਸਹਖ਼ਗ਼ਜ਼ਫ਼' +
                   'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ' +
@@ -107,7 +107,7 @@ const MentalHealthSupport: React.FC = () => {
   const sendMessageToBackend = async (message: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch('https://bookish-computing-machine-7vp9jp6g4q94hpgg9-3001.app.github.dev/api/mental-health-chat', {
+      const response = await fetch('https://sturdy-space-broccoli-7776j7j56jcx59r-3001.app.github.dev/api/mental-health-chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -224,7 +224,7 @@ const MentalHealthSupport: React.FC = () => {
                 )}
               </div>
               <div
-                className={`max-w-xs mx-2 p-3 rounded-lg ${
+                className={`max-w-2xl mx-2 p-3 rounded-lg ${
                   message.sender === 'user'
                     ? 'bg-purple-500 text-white'
                     : 'bg-gray-300 text-gray-800'
