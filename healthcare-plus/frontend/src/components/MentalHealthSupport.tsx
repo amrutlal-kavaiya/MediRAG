@@ -1,5 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Mic, Send, Paperclip, Video, X, User, Bot, Minus, Plus } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vs2015 } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
 interface Message {
   id: string;
@@ -22,10 +26,10 @@ interface Particle {
 const alphabets = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' +
                   'اابتثجحخدذرزسشصضطظعغفقكلمنهوي' +
                   'अआइईउऊऋएऐओऔअंअःकखगघङचछजझञटठडढणतथदधनपफबभमयरलवशषसहक्षत्रज्ञ' +
-                  'ਅਆਇਈਉਊਏਐਓਔਕਖਗਘਙਚਛਜਝਞਟਠਡਢਣਤਥਦਧਨਪਫਬਭਮਯਰਲਵਸ਼ਸਹਖ਼ਗ਼ਜ਼ਫ਼' +
+                  '��ਆਇਈਉਊਏਐਓਔਕਖਗਘਙਚਛਜਝਞਟਠਡਢਣਤਥਦਧਨਪਫਬਭਮਯਰਲਵਸ਼ਸਹਖ਼ਗ਼ਜ਼ਫ਼' +
                   'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ' +
                   'అఆఇఈఉఊఋఎఏఐఒఓఔఅంఅఃకఖగఘఙచఛజఝఞటఠడఢణతథదధనపఫబభమయరలవశషసహళక్షజ్ఞ' +
-                  'ಅಆಇಈಉಊಋಎಏಐಒಓಔಅಂಅಃಕಖಗಘಙಚಛಜಝಞಟಠಡಢಣತಥದಧನಪಫಬಭಮಯರಲವಶಷಸಹಳಕ್ಷಜ್ಞ' +
+                  'ಅಆಇಈಉಊಋಎಏಐಒಓಔಅಂಅಃಕಖಗಘಙಚಛಜಝಞಟಠಡಢಣತಥದಧನಪಫಬಭಮಯರಲವಶಷಸಹಳಕ್��ಜ್ಞ' +
                   '안녕하세요 세계';
 
 const MentalHealthSupport: React.FC = () => {
@@ -247,7 +251,70 @@ const MentalHealthSupport: React.FC = () => {
                     Attached File
                   </a>
                 )}
-                {message.text}
+                {message.sender === 'bot' ? (
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      code({node, className, children, ...props}) {
+                        const match = /language-(\w+)/.exec(className || '');
+                        const isInline = !match;
+                        return isInline ? (
+                          <code className={`${className} bg-gray-800 text-gray-100 px-1 rounded`} {...props}>
+                            {children}
+                          </code>
+                        ) : (
+                          <SyntaxHighlighter
+                            style={vs2015 as any} // Type assertion to resolve the type error
+                            language={match ? match[1] : 'text'}
+                            PreTag="div"
+                            className="rounded-md"
+                            {...props}
+                          >
+                            {String(children).replace(/\n$/, '')}
+                          </SyntaxHighlighter>
+                        );
+                      },
+                      // Style other Markdown elements
+                      h1: ({ children }) => <h1 className="text-2xl font-bold my-4">{children}</h1>,
+                      h2: ({ children }) => <h2 className="text-xl font-bold my-3">{children}</h2>,
+                      h3: ({ children }) => <h3 className="text-lg font-bold my-2">{children}</h3>,
+                      ul: ({ children }) => <ul className="list-disc ml-6 my-2">{children}</ul>,
+                      ol: ({ children }) => <ol className="list-decimal ml-6 my-2">{children}</ol>,
+                      li: ({ children }) => <li className="my-1">{children}</li>,
+                      blockquote: ({ children }) => (
+                        <blockquote className="border-l-4 border-gray-500 pl-4 my-2 italic">
+                          {children}
+                        </blockquote>
+                      ),
+                      table: ({ children }) => (
+                        <div className="overflow-x-auto my-4">
+                          <table className="min-w-full border border-gray-400">
+                            {children}
+                          </table>
+                        </div>
+                      ),
+                      th: ({ children }) => (
+                        <th className="border border-gray-400 px-4 py-2 bg-gray-100">
+                          {children}
+                        </th>
+                      ),
+                      td: ({ children }) => (
+                        <td className="border border-gray-400 px-4 py-2">
+                          {children}
+                        </td>
+                      ),
+                      a: ({ children, href }) => (
+                        <a href={href} className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
+                          {children}
+                        </a>
+                      ),
+                    }}
+                  >
+                    {message.text}
+                  </ReactMarkdown>
+                ) : (
+                  message.text
+                )}
                 <div className="text-xs mt-1 opacity-70">
                   {message.timestamp.toLocaleTimeString()}
                 </div>
@@ -322,6 +389,7 @@ const MentalHealthSupport: React.FC = () => {
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
                 className="w-full h-full"
+                title="Relaxation Video"
               ></iframe>
             </div>
           </div>
